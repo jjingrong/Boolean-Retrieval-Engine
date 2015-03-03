@@ -18,6 +18,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
     getList = {}
     allWords = []
+    wordFreq = {}
 
     # NLTK porter stemmer
     porterStem = PorterStemmer()
@@ -29,6 +30,8 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         #filename is each file in the directory
         print("current file: ")
         print(f)
+
+        # Ignore hidden files
         if not f.startswith('.'):
             # Content now stores each line
             filename = os.path.join(inPath, f)
@@ -48,11 +51,13 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
                     # Check if word already exist
                     # Case 1 : Word exist
                     if word in allWords:
+                        wordFreq[word] = int(wordFreq[word]) + 1
                         if f not in getList[word]:
                             getList[word].append(f)
 
                     # Case 2 : Word does not exist
                     else:
+                        wordFreq[word] = 1
                         # puts docID into an array, and point the 'word' as a key to it
                         getList[word] = []
                         getList[word].append(f)
@@ -71,6 +76,8 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
     for eachWord in allWords:
         # Write into dictionary file
         dictionaryOutput.write(eachWord)
+        dictionaryOutput.write(' ')
+        dictionaryOutput.write(str(wordFreq[eachWord]))
 
         # Sort docID
         getList[eachWord].sort()
