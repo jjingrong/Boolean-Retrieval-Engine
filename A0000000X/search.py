@@ -3,9 +3,43 @@ import nltk
 import sys
 import getopt
 
-# Python script for indexing
+# Python script for queries
 
-"""
-In order to collect the vocabulary, you need to apply tokenization and stemming on the document text. You should use the NLTK tokenizers (nltk.sent_tokenize() and nltk.word_tokenize()) to tokenize sentences and words, and the NLTK Porter stemmer (class nlkt.stem.porter) to do stemming. You need to do case-folding to reduce all words to lower case.
-"""
+def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
+    # Open queries file and do them sequentially
+    # Content now stores each line
+    with open(allQueries) as fileObj:
+        content = fileObj.readlines()
+
+    for eachLine in content:
+        # Do each query
+
+
+
+def usage():
+    print "usage: " + sys.argv[0] + "-d output-dictionary -p output-posting -q input-queries -o output-results"
+
+input_file_q = input_file_p = input_file_d = output_file = None
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], 'd:p:q:o:')
+except getopt.GetoptError, err:
+    usage()
+    sys.exit(2)
+for o, a in opts:
+    if o == '-q':
+        input_file_q = a
+    elif o == '-d':
+        input_file_d = a
+    elif o == '-p':
+        input_file_p = a
+    elif o == '-o':
+        output_file = a
+    else:
+        assert False, "unhandled option"
+if input_file_q == None or input_file_d == None or input_file_p == None or output_file == None:
+    usage()
+    sys.exit(2)
+
+performQueries(input_file_q, input_file_d, input_file_p, output_file)
