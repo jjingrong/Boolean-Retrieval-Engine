@@ -12,6 +12,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
     getList = {}
     allWords = []
     wordFreq = {}
+    allFiles = []
 
     # NLTK porter stemmer
     porterStem = PorterStemmer()
@@ -23,6 +24,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         #filename is each file in the directory
         print("current file: ")
         print(f)
+        allFiles.append(int(f))
 
         # Ignore hidden files
         if not f.startswith('.'):
@@ -83,6 +85,10 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         postingOutput.write('\n')
         dictionaryOutput.write('\n')
 
+    allFiles.sort()
+    for eachFile in allFiles:
+        postingOutput.write(str(eachFile))
+        postingOutput.write(' ')
 
 def usage():
     print "usage: " + sys.argv[0] + " -i path-of-file-for-indexing -d output-dictionary -p output-posting"

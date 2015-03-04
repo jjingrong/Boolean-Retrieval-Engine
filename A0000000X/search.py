@@ -83,7 +83,11 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             dictList.append(tokens[0])
             freqList.append(tokens[1])
 
-
+        allPostings = []
+        fp = open(postingsFile)
+        for line in enumerate(fp):
+            pass
+        allPostings = line[1]
 
         ##############
         # Process the query
@@ -125,6 +129,10 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
 
 # Helper methods, merge/union etc
+
+# complement of
+#def complementOf(term, dictList, postingsFile):
+
 
 # Takes in 'String', returns array of postings(int)
 def getPostingsList(term, dictList, freqList, postingsFile):
