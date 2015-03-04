@@ -16,6 +16,29 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         # Do each query
 
 
+# TODO - Skip pointers
+
+# Helper methods, merge/union etc
+# TODO - merge for AND
+def merge(list1, list2):
+    resultList = []
+
+
+    return []
+
+
+# union for OR
+def union(list1, list2):
+    resultList = []
+    for eachDocID in list1:
+        if eachDocID not in resultList:
+            resultList.append(eachDocID)
+    for eachDocID in list2:
+        if eachDocID not in resultList:
+            resultList.append(eachDocID)
+
+    return resultList
+
 
 def usage():
     print "usage: " + sys.argv[0] + "-d output-dictionary -p output-posting -q input-queries -o output-results"
