@@ -21,6 +21,7 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         content = fileObj.readlines()
 
     for eachLine in content:
+<<<<<<< .merge_file_MGt7Eh
         outputQ = deque()
         opStack = []
         
@@ -59,19 +60,34 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
                   
         # Process the query
         
+=======
+        # Do each query
+        # to do - Query precedence
 
-# TODO - Skip pointers
+
+>>>>>>> .merge_file_OL3U2b
+
 
 # Helper methods, merge/union etc
-# TODO - merge for AND
+# Takes in 2 arrays, and merge
 def merge(list1, list2):
     resultList = []
+    i = j = 0
+    # to do - Skip pointers
+    while (i < len(list1) and j < len(list2)):
+        if list1[i] == list2[j]:
+            resultList.append(list1[i])
+            i = i + 1
+            j = j + 1
+        elif list1[i] < list2[j]:
+            i = i+1
+        else:
+            j = j+1
+
+    return resultList
 
 
-    return []
-
-
-# union for OR
+# union for OR for 2 arrays
 def union(list1, list2):
     resultList = []
     for eachDocID in list1:
