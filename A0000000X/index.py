@@ -82,8 +82,6 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
         postingOutput.write('\n')
         dictionaryOutput.write('\n')
-    dictionaryOutput.close()
-    postingOutput.close()
 
 
 def usage():

@@ -25,25 +25,31 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
     with open(allQueries) as fileObj:
         content = fileObj.readlines()
 
+    # open output file
+    toOutput =  open(outputFile, 'w')
+
     for eachLine in content:
         outputQ = deque()
         opStack = []
 
+        tokens = nltk.word_tokenize(eachLine)
         # Process query into the output stack and process from there
-        for eachWord in eachLine:
+        for eachWord in tokens:
             if eachWord != '(' and eachWord != ')' and eachWord != 'NOT' and eachWord != 'AND' and eachWord != 'OR':
                 queryTerm = (eachWord, 4)
                 outputQ.append(queryTerm)
+
+            # Case: Read in parenthesis
             elif eachWord != '(' and eachWord != ')':
                 while len(opStack) != 0:
                     if eachWord == opNot[0]:
-                        if opNot[1] < opStack.peek()[1]:
+                        if opNot[1] < opStack[0][1]:
                             outputQ.append(opStack.pop())
                     elif eachWord == opAnd[0]:
-                        if opAnd[1] < opStack.peek()[1]:
+                        if opAnd[1] < opStack[0][1]:
                             outputQ.append(opStack.pop())
                     elif eachWord == opOr[0]:
-                        if opOr[1] < opStack.peek()[1]:
+                        if opOr[1] < opStack[0][1]:
                             outputQ.append(opStack.pop())
 
                 if eachWord == opNot[0]:
@@ -56,40 +62,87 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             elif eachWord == '(':
                 opStack.append(opLeftBracket)
             elif eachWord == ')':
-                while opStack.peek() != '(':
+                while opStack[0][0] != '(':
                     outputQ.append(opStack.pop())
                 opStack.pop()
 
         while len(opStack) != 0:
             outputQ.append(opStack.pop())
 
+        ##############
+        # File processing
+        # Get array of lines of dictionary
+        dictList = []
+        freqList = []
+        with open(dictionaryFile) as fileObj:
+            dictContents = fileObj.readlines()
+        for eachLine in dictContents:
+            tokens = nltk.word_tokenize(eachLine)
+            dictList.append(tokens[0])
+            freqList.append(tokens[1])
+
+
+
+        ##############
         # Process the query
         # termStack will be a list containing posting lists
         termStack = []
+
+        # While queue is not empty
         while len(outputQ) != 0:
-            while outputQ.peek()[0] != 'NOT' and outputQ.peek()[0] != 'AND' and outputQ.peek()[0] != 'OR':
+            while (outputQ[0])[0] != 'NOT' and (outputQ[0])[0] != 'AND' and (outputQ[0])[0] != 'OR':
                 term = outputQ.popleft()
-                termPostingsList = getPostingsList(term)
+                termPostingsList = getPostingsList(term[0], dictList, freqList, postingsFile)
                 termStack.append(termPostingsList)
-                
-            if outputQ.peek()[0] == 'NOT':
+                #for eachPosting in termPostingsList:
+                #    termStack.append(eachPosting)
+
+            if (outputQ[0])[0] == 'NOT':
                 postingsListOne = termStack.pop()
                 # Do NOT(postingsListOne)
-                
-            elif outputQ.peek()[0] == 'AND':
+
+            elif (outputQ[0])[0] == 'AND':
                 postingsListOne = termStack.pop()
                 postingsListTwo = termStack.pop()
                 termStack.append(merge(postingsListOne, postingsListTwo))
-                
-            elif outputQ.peek()[0] == 'OR':
+
+            elif (outputQ[0])[0] == 'OR':
                 postingsListOne = termStack.pop()
                 postingsListTwo = termStack.pop()
                 termStack.append(union(postingsListOne, postingsListTwo))
 
-        # Do each query
-        # to do - Query precedence
+            outputQ.popleft()
+
+        if termStack[0] is None:
+            toOutput.write('\n')
+        else:
+            for eachPost in termStack[0]:
+                toOutput.write(str(eachPost))
+                toOutput.write(' ')
+            toOutput.write('\n')
+
 
 # Helper methods, merge/union etc
+
+# Takes in 'String', returns array of postings(int)
+def getPostingsList(term, dictList, freqList, postingsFile):
+
+    postings = []
+
+    if term in dictList:
+        lineNumberOfPostings = dictList.index(term)
+    else:
+        return postings
+
+    fp = open(postingsFile)
+    for i, line in enumerate(fp):
+        if i == lineNumberOfPostings:
+            postings = nltk.word_tokenize(line)
+    print(term)
+    print(postings)
+    return postings
+
+
 # Takes in 2 arrays, and merge
 def merge(list1, list2):
     resultList = []
@@ -106,15 +159,15 @@ def merge(list1, list2):
             i = i + 1
             j = j + 1
         elif list1[i] < list2[j]:
-            if ( i+iSkipPointer < len(list1) and list[i+iSkipPointer] < list2[j]):
-                i = i + iSkipPointer
-            else:
-                i = i+1
+            #if ( i+iSkipPointer < len(list1) and list[i+iSkipPointer] < list2[j]):
+            #    i = i + iSkipPointer
+            #else:
+            i = i+1
         else: # list1 > list2
-            if ( j+jSkipPointer < len(list2) and list[j+jSkipPointer] < list1[i]):
-                j = j + jSkipPointer
-            else:
-                j = j+1
+            #if ( j+jSkipPointer < len(list2) and list[j+jSkipPointer] < list1[i]):
+            #    j = j + jSkipPointer
+            #else:
+            j = j+1
 
     return resultList
 
@@ -146,8 +199,7 @@ def union(list1, list2):
     for eachDocID in list2:
         if int(eachDocID) not in resultList:
             resultList.append(int(eachDocID))
-
-    return resultList.sort()
+    return sorted(resultList)
 
 
 def usage():
