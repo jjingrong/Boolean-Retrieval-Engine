@@ -150,24 +150,24 @@ def merge(list1, list2):
     resultList = []
     i = j = 0
     # to do - Skip pointers
-    #iSkipPointer = int(math.sqrt(len(list1)))
-    #jSkipPointer = int(math.sqrt(len(list2)))
+    iSkipPointer = int(math.sqrt(len(list1)))
+    jSkipPointer = int(math.sqrt(len(list2)))
 
     while (i < len(list1) and j < len(list2)):
         if list1[i] == list2[j]:
             resultList.append(list1[i])
             i = i + 1
             j = j + 1
-        elif list1[i] < list2[j]:
-            #if ( (int(i+iSkipPointer) < len(list1)) and ( list1[int(i+iSkipPointer)] < list2[j])):
-            #    i = i + iSkipPointer
-            #else:
-            i = i+1
+        elif int(list1[i]) < int(list2[j]):
+            if ( (int(i+iSkipPointer) < len(list1)) and ( int(list1[int(i+iSkipPointer)]) < int(list2[j]))):
+                i = i + iSkipPointer
+            else:
+                i = i+1
         else: # list1 > list2
-            #if ( (int(j+jSkipPointer) < len(list2)) and (list2[int(j+jSkipPointer)] < list1[i])):
-            #   j = j + jSkipPointer
-            #else:
-            j = j+1
+            if ( (int(j+jSkipPointer) < len(list2)) and (int(list2[int(j+jSkipPointer)]) < int(list1[i]))):
+                j = j + jSkipPointer
+            else:
+                j = j+1
 
     return resultList
 
