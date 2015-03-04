@@ -37,7 +37,7 @@ def union(list1, list2):
         if eachDocID not in resultList:
             resultList.append(eachDocID)
 
-    return resultList
+    return resultList.sort()
 
 
 def usage():
