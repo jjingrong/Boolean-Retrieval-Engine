@@ -16,15 +16,24 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         # Do each query
 
 
-# TODO - Skip pointers
+# to do - Skip pointers
 
 # Helper methods, merge/union etc
-# TODO - merge for AND
+# Takes in 2 arrays, and merge
 def merge(list1, list2):
     resultList = []
+    i = j = 0
+    while (i < list1.count and j < list2.count):
+        if list1[i] == list2[j]:
+            resultList.append(list1[i])
+            i = i + 1
+            j = j + 1
+        elif list1[i] < list2[j]:
+            i = i+1
+        else:
+            j = j+1
 
-
-    return []
+    return resultList
 
 
 # union for OR
