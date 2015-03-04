@@ -45,15 +45,15 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
                     # Case 1 : Word exist
                     if word in allWords:
                         wordFreq[word] = int(wordFreq[word]) + 1
-                        if f not in getList[word]:
-                            getList[word].append(f)
+                        if int(f) not in getList[word]:
+                            getList[word].append(int(f))
 
                     # Case 2 : Word does not exist
                     else:
                         wordFreq[word] = 1
                         # puts docID into an array, and point the 'word' as a key to it
                         getList[word] = []
-                        getList[word].append(f)
+                        getList[word].append(int(f))
                         # Record the word
                         allWords.append(word)
 
@@ -82,6 +82,8 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
         postingOutput.write('\n')
         dictionaryOutput.write('\n')
+    dictionaryOutput.close()
+    postingOutput.close()
 
 
 def usage():
