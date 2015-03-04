@@ -45,20 +45,26 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
                     if eachWord == opNot[0]:
                         if opNot[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
+                        else:
+                            break
                     elif eachWord == opAnd[0]:
                         if opAnd[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
+                        else:
+                            break
                     elif eachWord == opOr[0]:
                         if opOr[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
-
+                        else:
+                            break
+                
                 if eachWord == opNot[0]:
                     opStack.append(opNot)
                 elif eachWord == opAnd[0]:
                     opStack.append(opAnd)
                 elif eachWord == opOr[0]:
                     opStack.append(opOr)
-
+                        
             elif eachWord == '(':
                 opStack.append(opLeftBracket)
             elif eachWord == ')':
@@ -83,11 +89,11 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             dictList.append(tokens[0])
             freqList.append(tokens[1])
 
-        allPostings = []
         fp = open(postingsFile)
         for line in enumerate(fp):
             pass
-        allPostings = line[1]
+        allPostingsStr = line[1]
+        allPostings = nltk.word_tokenize(allPostingsStr)
 
         ##############
         # Process the query
@@ -105,7 +111,7 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
             if (outputQ[0])[0] == 'NOT':
                 postingsListOne = termStack.pop()
-                # Do NOT(postingsListOne)
+                termStack.append(complementOf(postingsListOne, allPostings))
 
             elif (outputQ[0])[0] == 'AND':
                 postingsListOne = termStack.pop()

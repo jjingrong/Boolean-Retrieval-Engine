@@ -1,1 +1,1 @@
-from AND half
+from AND NOT half
