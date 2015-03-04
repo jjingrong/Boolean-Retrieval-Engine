@@ -21,7 +21,6 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         content = fileObj.readlines()
 
     for eachLine in content:
-<<<<<<< .merge_file_MGt7Eh
         outputQ = deque()
         opStack = []
         
@@ -60,13 +59,8 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
                   
         # Process the query
         
-=======
         # Do each query
         # to do - Query precedence
-
-
->>>>>>> .merge_file_OL3U2b
-
 
 # Helper methods, merge/union etc
 # Takes in 2 arrays, and merge
