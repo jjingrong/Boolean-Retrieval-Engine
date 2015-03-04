@@ -14,16 +14,18 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
     for eachLine in content:
         # Do each query
+        # to do - Query precedence
 
 
-# to do - Skip pointers
+
 
 # Helper methods, merge/union etc
 # Takes in 2 arrays, and merge
 def merge(list1, list2):
     resultList = []
     i = j = 0
-    while (i < list1.count and j < list2.count):
+    # to do - Skip pointers
+    while (i < len(list1) and j < len(list2)):
         if list1[i] == list2[j]:
             resultList.append(list1[i])
             i = i + 1
@@ -36,7 +38,7 @@ def merge(list1, list2):
     return resultList
 
 
-# union for OR
+# union for OR for 2 arrays
 def union(list1, list2):
     resultList = []
     for eachDocID in list1:
