@@ -8,17 +8,14 @@ from collections import deque
 # Python script for queries
 
 def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
-<<<<<<< HEAD
     
     # Define tuples (operator, precedence)
     opLeftBracket = ('(', 5)
     opRightBracket = (')', 5)
-=======
 
     # Define operator tuples (operator, precedence)
     opLeftBracket = ('(', 4)
     opRightBracket = (')', 4)
->>>>>>> bd2d4a852da7f070ef98ea72cc128613a8622fc1
     opNot = ('NOT', 3)
     opAnd = ('AND', 2)
     opOr = ('OR', 1)
@@ -67,7 +64,6 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             outputQ.append(opStack.pop())
 
         # Process the query
-<<<<<<< HEAD
         # termStack will be a list containing posting lists
         termStack = []
         while len(outputQ) != 0:
@@ -89,10 +85,8 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
                 postingsListOne = termStack.pop()
                 postingsListTwo = termStack.pop()
                 termStack.append(union(postingsListOne, postingsListTwo))
-=======
 
         # Do each query
->>>>>>> bd2d4a852da7f070ef98ea72cc128613a8622fc1
         # to do - Query precedence
 
 # Helper methods, merge/union etc
