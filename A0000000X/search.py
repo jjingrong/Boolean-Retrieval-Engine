@@ -130,8 +130,12 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
 # Helper methods, merge/union etc
 
-# complement of
-#def complementOf(term, dictList, postingsFile):
+# complement of a term
+# takes in postingList of that term: 'String', and ALL postings
+def complementOf(postingList, allPostings):
+    complementedPost = allPostings - set(postingList)
+    answer = complementedPost.sort(key=int)
+    return answer
 
 
 # Takes in 'String', returns array of postings(int)
