@@ -2,19 +2,63 @@ import re
 import nltk
 import sys
 import getopt
+from collections import deque
 
 # Python script for queries
 
 def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
-
+    
+    # Define operator tuples (operator, precedence)
+    opLeftBracket = ('(', 4)
+    opRightBracket = (')', 4)
+    opNot = ('NOT', 3)
+    opAnd = ('AND', 2)
+    opOr = ('OR', 1)
+    
     # Open queries file and do them sequentially
     # Content now stores each line
     with open(allQueries) as fileObj:
         content = fileObj.readlines()
 
     for eachLine in content:
-        # Do each query
-
+        outputQ = deque()
+        opStack = []
+        
+        # Process query into the output stack and process from there
+        for eachWord in eachLine:
+            if eachWord != '(' or ')' or 'NOT' or 'AND' or 'OR':
+                outputQ.append(eachWord)
+            elif eachWord != '(' or ')':
+                while len(opStack) != 0:
+                    if eachWord == opNot[0]:
+                        if opNot[1] < opStack.peek()[1]:
+                            outputQ.append(opStack.pop())
+                    elif eachWord == opAnd[0]:
+                        if opAnd[1] < opStack.peek()[1]:
+                            outputQ.append(opStack.pop())
+                    elif eachWord == opOr[0]:
+                        if opOr[1] < opStack.peek()[1]:
+                            outputQ.append(opStack.pop())
+                
+                if eachWord == opNot[0]:
+                    opStack.append(opNot)
+                elif eachWord == opAnd[0]:
+                    opStack.append(opAnd)
+                elif eachWord == opOr[0]:
+                    opStack.append(opOr)
+                    
+            elif eachWord == '(':
+                opStack.append(opLeftBracket)
+            elif eachWord == ')':
+                while opStack.peek() != '(':
+                    outputQ.append(opStack.pop())
+                opStack.pop()
+                
+        while len(opStack) != 0:
+            outputQ.append(opStack.pop())  
+                  
+        # Process the query
+        
 
 # TODO - Skip pointers
 
