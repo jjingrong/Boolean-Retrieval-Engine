@@ -41,15 +41,15 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
             # Case: Read in parenthesis
             elif eachWord != '(' and eachWord != ')':
-                while len(opStack) != 0:
+                while len(opStack) != 0 and (opStack[len(opStack) - 1][0] == 'AND' or opStack[len(opStack) - 1][0] == 'OR' or opStack[len(opStack) - 1][0] == 'NOT'):
                     if eachWord == opNot[0]:
-                        if opNot[1] < opStack[0][1]:
+                        if opNot[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
                     elif eachWord == opAnd[0]:
-                        if opAnd[1] < opStack[0][1]:
+                        if opAnd[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
                     elif eachWord == opOr[0]:
-                        if opOr[1] < opStack[0][1]:
+                        if opOr[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
 
                 if eachWord == opNot[0]:
@@ -62,7 +62,9 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             elif eachWord == '(':
                 opStack.append(opLeftBracket)
             elif eachWord == ')':
-                while opStack[0][0] != '(':
+                while len(opStack) > 0 and opStack[len(opStack) - 1][0] != '(':
+                    if not (opStack[0]):
+                        break 
                     outputQ.append(opStack.pop())
                 opStack.pop()
 
@@ -148,10 +150,8 @@ def merge(list1, list2):
     resultList = []
     i = j = 0
     # to do - Skip pointers
-    iSkipPointer = math.sqrt(len(list1))
-    iSkipPointer = math.floor(iSkipPointer)
-    jSkipPointer = math.sqrt(len(list2))
-    jSkipPointer = math.floor(jSkipPointer)
+    #iSkipPointer = int(math.sqrt(len(list1)))
+    #jSkipPointer = int(math.sqrt(len(list2)))
 
     while (i < len(list1) and j < len(list2)):
         if list1[i] == list2[j]:
@@ -159,13 +159,13 @@ def merge(list1, list2):
             i = i + 1
             j = j + 1
         elif list1[i] < list2[j]:
-            #if ( i+iSkipPointer < len(list1) and list[i+iSkipPointer] < list2[j]):
+            #if ( (int(i+iSkipPointer) < len(list1)) and ( list1[int(i+iSkipPointer)] < list2[j])):
             #    i = i + iSkipPointer
             #else:
             i = i+1
         else: # list1 > list2
-            #if ( j+jSkipPointer < len(list2) and list[j+jSkipPointer] < list1[i]):
-            #    j = j + jSkipPointer
+            #if ( (int(j+jSkipPointer) < len(list2)) and (list2[int(j+jSkipPointer)] < list1[i])):
+            #   j = j + jSkipPointer
             #else:
             j = j+1
 
