@@ -27,7 +27,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         allFiles.append(int(f))
 
         # Ignore hidden files
-        if not f.startswith('.'):
+        if (not f.startswith('.')) and (not int(f) == 17980):
             # Content now stores each line
             filename = os.path.join(inPath, f)
             with open(filename) as fileObj:

@@ -4,6 +4,7 @@ import sys
 import getopt
 import math
 from collections import deque
+import copy
 
 # Python script for queries
 
@@ -94,6 +95,8 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             pass
         allPostingsStr = line[1]
         allPostings = nltk.word_tokenize(allPostingsStr)
+        print('allPostings: ')
+        print(allPostings)
 
         ##############
         # Process the query
@@ -139,9 +142,15 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 # complement of a term
 # takes in postingList of that term: 'String', and ALL postings
 def complementOf(postingList, allPostings):
-    complementedPost = allPostings - set(postingList)
-    answer = complementedPost.sort(key=int)
-    return answer
+    #complementedPost = allPostings - set(postingList)
+    #complementedPost = allPostings
+    complementedPost = copy.deepcopy(allPostings)
+    #for j in allPostings:
+    #    complementedPost.append(j)
+    
+    for i in postingList:
+        complementedPost.remove(i)
+    return complementedPost
 
 
 # Takes in 'String', returns array of postings(int)
@@ -167,6 +176,10 @@ def getPostingsList(term, dictList, freqList, postingsFile):
 def merge(list1, list2):
     resultList = []
     i = j = 0
+    if not (list1) :
+        return resultList
+    if not (list2) :
+        return resultList
     # to do - Skip pointers
     iSkipPointer = int(math.sqrt(len(list1)))
     jSkipPointer = int(math.sqrt(len(list2)))
