@@ -8,9 +8,9 @@ from collections import deque
 
 def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
     
-    # Define operator tuples (operator, precedence)
-    opLeftBracket = ('(', 4)
-    opRightBracket = (')', 4)
+    # Define tuples (operator, precedence)
+    opLeftBracket = ('(', 5)
+    opRightBracket = (')', 5)
     opNot = ('NOT', 3)
     opAnd = ('AND', 2)
     opOr = ('OR', 1)
@@ -26,9 +26,10 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         
         # Process query into the output stack and process from there
         for eachWord in eachLine:
-            if eachWord != '(' or ')' or 'NOT' or 'AND' or 'OR':
-                outputQ.append(eachWord)
-            elif eachWord != '(' or ')':
+            if eachWord != '(' and eachWord != ')' and eachWord != 'NOT' and eachWord != 'AND' and eachWord != 'OR':
+                queryTerm = (eachWord, 4)
+                outputQ.append(queryTerm)
+            elif eachWord != '(' and eachWord != ')':
                 while len(opStack) != 0:
                     if eachWord == opNot[0]:
                         if opNot[1] < opStack.peek()[1]:
@@ -58,8 +59,27 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             outputQ.append(opStack.pop())  
                   
         # Process the query
-        
-        # Do each query
+        # termStack will be a list containing posting lists
+        termStack = []
+        while len(outputQ) != 0:
+            while outputQ.peek()[0] != 'NOT' and outputQ.peek()[0] != 'AND' and outputQ.peek()[0] != 'OR':
+                term = outputQ.popleft()
+                termPostingsList = getPostingsList(term)
+                termStack.append(termPostingsList)
+                
+            if outputQ.peek()[0] == 'NOT':
+                postingsListOne = termStack.pop()
+                # Do NOT(postingsListOne)
+                
+            elif outputQ.peek()[0] == 'AND':
+                postingsListOne = termStack.pop()
+                postingsListTwo = termStack.pop()
+                termStack.append(merge(postingsListOne, postingsListTwo))
+                
+            elif outputQ.peek()[0] == 'OR':
+                postingsListOne = termStack.pop()
+                postingsListTwo = termStack.pop()
+                termStack.append(union(postingsListOne, postingsListTwo))
         # to do - Query precedence
 
 # Helper methods, merge/union etc
