@@ -24,10 +24,10 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         #filename is each file in the directory
         print("current file: ")
         print(f)
-        allFiles.append(int(f))
 
         # Ignore hidden files
         if (not f.startswith('.')) and (not int(f) == 17980):
+            allFiles.append(int(f))
             # Content now stores each line
             filename = os.path.join(inPath, f)
             with open(filename) as fileObj:
@@ -35,6 +35,8 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
             # Iterating through each line
             for sentence in content:
+                
+                sentence = sentence.decode('ascii', 'ignore')
                 # tokens store array of words
                 tokens = nltk.word_tokenize(sentence)
 
@@ -67,13 +69,14 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
     dictionaryOutput = open(outDictionary, 'w')
     postingOutput = open(outPostings, 'w')
-
     for eachWord in allWords:
         # Write into dictionary file
         dictionaryOutput.write(eachWord)
         dictionaryOutput.write(' ')
         dictionaryOutput.write(str(wordFreq[eachWord]))
-
+        dictionaryOutput.write(' ')
+        dictionaryOutput.write(str(postingOutput.tell()))
+        
         # Sort docID
         getList[eachWord].sort()
 
@@ -82,9 +85,10 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
             postingOutput.write('%s ' % eachID)
         # New line to seperate word/postings
 
+
         postingOutput.write('\n')
         dictionaryOutput.write('\n')
-
+    
     allFiles.sort()
     for eachFile in allFiles:
         postingOutput.write(str(eachFile))
