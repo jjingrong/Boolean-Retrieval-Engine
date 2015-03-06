@@ -1,9 +1,8 @@
-import re
 import nltk
 import sys
 import getopt
 import os
-from nltk.stem.porter import *
+from nltk.stem.porter import PorterStemmer
 
 # Python script for indexing
 
@@ -17,7 +16,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
     # NLTK porter stemmer
     porterStem = PorterStemmer()
     directory = os.listdir(inPath)
-    print(directory)
+    #print(directory)
 
     # Open directory
     for f in directory:
@@ -26,7 +25,7 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
         print(f)
 
         # Ignore hidden files
-        if (not f.startswith('.')) and (not int(f) == 17980):
+        if (not f.startswith('.')):
             allFiles.append(int(f))
             # Content now stores each line
             filename = os.path.join(inPath, f)

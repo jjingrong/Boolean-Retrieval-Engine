@@ -1,4 +1,3 @@
-import re
 import nltk
 import sys
 import getopt
@@ -9,14 +8,35 @@ import copy
 # Python script for queries
 
 def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
-    
-    # Define tuples (operator, precedence)
-    opLeftBracket = ('(', 5)
-    opRightBracket = (')', 5)
 
+    ####################################################################################
+    # File processing
+    # Get array of lines of dictionary
+    
+    # Freq List is done for HW3 extensionability
+    dictList = []
+    freqList = []
+    pointerList = []
+    with open(dictionaryFile) as fileObj:
+        dictContents = fileObj.readlines()
+    for eachLine in dictContents:
+        tokens = nltk.word_tokenize(eachLine)
+        dictList.append(tokens[0])
+        freqList.append(tokens[1])
+        pointerList.append(tokens[2])
+    
+
+    fp = open(postingsFile)
+    fp.seek(int(pointerList[len(pointerList) - 1]), 0)
+    allPostingsStr = fp.readline()
+    allPostings = nltk.word_tokenize(allPostingsStr)
+    #print('allPostings: ')
+    #print(allPostings)
+
+    ####################################################################################    
+    
     # Define operator tuples (operator, precedence)
     opLeftBracket = ('(', 4)
-    opRightBracket = (')', 4)
     opNot = ('NOT', 3)
     opAnd = ('AND', 2)
     opOr = ('OR', 1)
@@ -35,6 +55,12 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
         tokens = nltk.word_tokenize(eachLine)
         # Process query into the output stack and process from there
+        if (len(tokens) <= 1):
+            allTerms = getPostingsList(tokens[0], dictList, pointerList, postingsFile)
+            for eachTerm in allTerms:
+                toOutput.write(str(eachTerm) + ' ')
+            toOutput.write('\n')
+            continue
         for eachWord in tokens:
             if eachWord != '(' and eachWord != ')' and eachWord != 'NOT' and eachWord != 'AND' and eachWord != 'OR':
                 queryTerm = (eachWord, 4)
@@ -43,6 +69,7 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
             # Case: Read in parenthesis
             elif eachWord != '(' and eachWord != ')':
                 while len(opStack) != 0 and (opStack[len(opStack) - 1][0] == 'AND' or opStack[len(opStack) - 1][0] == 'OR' or opStack[len(opStack) - 1][0] == 'NOT'):
+                    # Switch case for different operators
                     if eachWord == opNot[0]:
                         if opNot[1] < opStack[len(opStack) - 1][1]:
                             outputQ.append(opStack.pop())
@@ -78,58 +105,41 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         while len(opStack) != 0:
             outputQ.append(opStack.pop())
 
-        ####################################################################################
-        # File processing
-        # Get array of lines of dictionary
-        dictList = []
-        freqList = []
-        pointerList = []
-        with open(dictionaryFile) as fileObj:
-            dictContents = fileObj.readlines()
-        for eachLine in dictContents:
-            tokens = nltk.word_tokenize(eachLine)
-            dictList.append(tokens[0])
-            freqList.append(tokens[1])
-            pointerList.append(tokens[2])
-        
-
-        fp = open(postingsFile)
-        fp.seek(int(pointerList[len(pointerList) - 1]), 0)
-        allPostingsStr = fp.readline()
-        allPostings = nltk.word_tokenize(allPostingsStr)
-        print('allPostings: ')
-        print(allPostings)
-
-        ####################################################################################
-        
         # Process the query
         # termStack will be a list containing posting lists
         termStack = []
-
+        wordStack = []
+        
         # While queue is not empty
         while len(outputQ) != 0:
             while (outputQ[0])[0] != 'NOT' and (outputQ[0])[0] != 'AND' and (outputQ[0])[0] != 'OR':
                 term = outputQ.popleft()
-                termPostingsList = getPostingsList(term[0], dictList, freqList, pointerList, postingsFile)
+                termPostingsList = getPostingsList(term[0], dictList, pointerList, postingsFile)
                 termStack.append(termPostingsList)
-                #for eachPosting in termPostingsList:
-                #    termStack.append(eachPosting)
+                wordStack.append(term[0])
 
             if (outputQ[0])[0] == 'NOT':
                 postingsListOne = termStack.pop()
                 termStack.append(complementOf(postingsListOne, allPostings))
+                outputQ.popleft()
 
             elif (outputQ[0])[0] == 'AND':
+                toAnd = []
                 postingsListOne = termStack.pop()
                 postingsListTwo = termStack.pop()
-                termStack.append(merge(postingsListOne, postingsListTwo))
+                toAnd.append(postingsListOne)
+                toAnd.append(postingsListTwo)
+                outputQ.popleft()
+                while ( len(outputQ) > 0 and (outputQ[0])[0] == 'AND'):
+                    toAnd.append(termStack.pop())
+                    outputQ.popleft()
+                termStack.append(multiAnd(toAnd))
 
             elif (outputQ[0])[0] == 'OR':
                 postingsListOne = termStack.pop()
                 postingsListTwo = termStack.pop()
                 termStack.append(union(postingsListOne, postingsListTwo))
-
-            outputQ.popleft()
+                outputQ.popleft()
 
         if termStack[0] is None:
             toOutput.write('\n')
@@ -141,9 +151,19 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 
 
 # Helper methods, merge/union etc
+# Multiple AND method
+def multiAnd(toAnd):
+    
+    sorted(toAnd, key=len, reverse=True)
+    while len(toAnd) > 2:
+        listOne = toAnd.pop()
+        listTwo = toAnd.pop()
+        toAnd.append(merge(listOne, listTwo))
+    
+    # Return the last 2 elements upon merging    
+    return merge(toAnd.pop(), toAnd.pop())
 
 # complement of a term
-# takes in postingList of that term: 'String', and ALL postings
 def complementOf(postingList, allPostings):
     complementedPost = copy.deepcopy(allPostings)
     
@@ -151,9 +171,8 @@ def complementOf(postingList, allPostings):
         complementedPost.remove(str(i))
     return complementedPost
 
-
 # Takes in 'String', returns array of postings(int)
-def getPostingsList(term, dictList, freqList, pointerList, postingsFile):
+def getPostingsList(term, dictList, pointerList, postingsFile):
 
     postings = []
 
@@ -173,16 +192,13 @@ def getPostingsList(term, dictList, freqList, pointerList, postingsFile):
 
 # Takes in 2 arrays, and merge
 def merge(list1, list2):
-    print("CHECK")
-    print(list1)
-    print(list2)
     resultList = []
     i = j = 0
     if not (list1) :
         return resultList
     if not (list2) :
         return resultList
-    # to do - Skip pointers
+    # Skip pointers basd on sqrt
     iSkipPointer = int(math.sqrt(len(list1)))
     jSkipPointer = int(math.sqrt(len(list2)))
 
@@ -209,7 +225,7 @@ def merge(list1, list2):
 def union(list1, list2):
     resultList = []
     """
-    Trying to make faster -> do later if got time
+    Trying to make faster
     -> O(2n)
     i = j = 0
     while (i < len(list1) and j < len(list2)):
@@ -232,6 +248,7 @@ def union(list1, list2):
     for eachDocID in list2:
         if int(eachDocID) not in resultList:
             resultList.append(int(eachDocID))
+    
     return sorted(resultList)
 
 

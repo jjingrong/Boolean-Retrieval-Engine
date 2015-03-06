@@ -1,1 +1,86 @@
-(NOT survey OR these) AND weekend
+??????????????????????????????????????????
+??????????????????????????????????????????
+?????????			 			 ?????????
+?????????    ESSAY QUESTIONS:    ?????????
+?????????			 			 ?????????
+??????????????????????????????????????????
+??????????????????????????????????????????
+
+Matriculation Number: A0111014J / A0114395E
+Email Address: nelson.goh@u.nus.edu / jingrong@nus.edu.sg
+
+////////////////////////////////////////////////////////////////////////////////////
+
+[Question 1]:
+
+You will observe that a large portion of the terms in the dictionary are numbers. 
+However, we normally do not use numbers as query terms to search. Do you think it is 
+a good idea to remove these number entries from the dictionary and the postings lists? 
+Can you propose methods to normalize these numbers? How many percentage of reduction 
+in disk storage do you observe after removing/normalizing these numbers?
+
+[Answer 1]: 
+
+Yes we should remove the query terms with number entries and perhaps, 
+store them in a separate index, as these searches are uncommon and take up 
+unneccessary space. However, these entries should not be deleted as these entries 
+might contain information such as dates, which might actually be searched.
+
+After removing all entries beginning with numbers (14 431 such entries):
+BEFORE 	- 614kb (Dictionary)
+		- 3.1Mb (Postings List)
+
+AFTER 	- 377kb (Dictionary)
+		- 2.8Mb (Postings List)
+
+This however, is not fully representative of numeric postings, as there are other 
+entries which contain numbers that do not begin with a number. I would expect the 
+savings for postings to be approximately 50% if ALL numeric postings are removed.
+
+////////////////////////////////////////////////////////////////////////////////////
+
+[Question 2]:
+
+What do you think will happen if we remove stop words from the dictionary and 
+postings file? How does it affect the searching phase?
+
+[Answer 2]:
+
+The size of dictionary and postings files will be reduced, more so for postings.
+
+For boolean queries, we will be unable to execute queries which contains stop words.
+E.g. to AND be AND or AND not, will not give us any result.
+	bill AND gates AND the, will give us an empty set too
+	bill AND gates OR the, is ambigious on how we are supposed to execute this query.
+
+For phrasal queries (not supported in this assignment), we will be unable to search for 
+exact phrases. E.g. "King of Denmark" and relational queries such as "Flights to London"
+
+
+////////////////////////////////////////////////////////////////////////////////////
+
+[Question 3]:
+
+The NLTK tokenizer may not correctly tokenize all terms. What do you observe from 
+the resulting terms produced by sent_tokenize() and word_tokenize()? Can you propose 
+rules to further refine these results?
+
+[Answer 3]:
+
+For our assignment, we did not utilize sent_tokenize().
+However for the case of word_tokenize(), the tokenization process naively splits on
+characters such as whitespace and tokenizes it into characters such as apostrophes 
+which are not very useful dictionary terms by itself. Dates such as "5 5 2014" 
+might be indexed separately as "5" and "2014", and hence loses its original meaning
+i.e. (5th of May, 2014).
+
+We could add in additional conditional statements to act as 'better' delimiters to 
+help with indexing: E.g. Consecutive numbers such "5 5 2014" could be indexed as an
+entry on its own
+
+In addition, the NLTK tokenizer is currently built for the English language and could
+end up performing poorly for other languages with different linguistics. Perhaps some 
+language-determining algorithms could be implemented before using this tokenizer, or
+perhaps the use of other custom tokenizers for the relevant languages.
+
+////////////////////////////////////////////////////////////////////////////////////
