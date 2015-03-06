@@ -88,7 +88,10 @@ def indexDictAndPosting(inPath, outDictionary, outPostings):
 
         postingOutput.write('\n')
         dictionaryOutput.write('\n')
-    
+    #stubs
+    dictionaryOutput.write('_ ')
+    dictionaryOutput.write('_ ')
+    dictionaryOutput.write(str(postingOutput.tell()))
     allFiles.sort()
     for eachFile in allFiles:
         postingOutput.write(str(eachFile))

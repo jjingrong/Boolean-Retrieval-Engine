@@ -78,27 +78,30 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         while len(opStack) != 0:
             outputQ.append(opStack.pop())
 
-        ##############
+        ####################################################################################
         # File processing
         # Get array of lines of dictionary
         dictList = []
         freqList = []
+        pointerList = []
         with open(dictionaryFile) as fileObj:
             dictContents = fileObj.readlines()
         for eachLine in dictContents:
             tokens = nltk.word_tokenize(eachLine)
             dictList.append(tokens[0])
             freqList.append(tokens[1])
+            pointerList.append(tokens[2])
+        
 
         fp = open(postingsFile)
-        for line in enumerate(fp):
-            pass
-        allPostingsStr = line[1]
+        fp.seek(int(pointerList[len(pointerList) - 1]), 0)
+        allPostingsStr = fp.readline()
         allPostings = nltk.word_tokenize(allPostingsStr)
         print('allPostings: ')
         print(allPostings)
 
-        ##############
+        ####################################################################################
+        
         # Process the query
         # termStack will be a list containing posting lists
         termStack = []
@@ -107,7 +110,7 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
         while len(outputQ) != 0:
             while (outputQ[0])[0] != 'NOT' and (outputQ[0])[0] != 'AND' and (outputQ[0])[0] != 'OR':
                 term = outputQ.popleft()
-                termPostingsList = getPostingsList(term[0], dictList, freqList, postingsFile)
+                termPostingsList = getPostingsList(term[0], dictList, freqList, pointerList, postingsFile)
                 termStack.append(termPostingsList)
                 #for eachPosting in termPostingsList:
                 #    termStack.append(eachPosting)
@@ -142,31 +145,27 @@ def performQueries(allQueries, dictionaryFile, postingsFile, outputFile):
 # complement of a term
 # takes in postingList of that term: 'String', and ALL postings
 def complementOf(postingList, allPostings):
-    #complementedPost = allPostings - set(postingList)
-    #complementedPost = allPostings
     complementedPost = copy.deepcopy(allPostings)
-    #for j in allPostings:
-    #    complementedPost.append(j)
     
     for i in postingList:
-        complementedPost.remove(i)
+        complementedPost.remove(str(i))
     return complementedPost
 
 
 # Takes in 'String', returns array of postings(int)
-def getPostingsList(term, dictList, freqList, postingsFile):
+def getPostingsList(term, dictList, freqList, pointerList, postingsFile):
 
     postings = []
 
     if term in dictList:
-        lineNumberOfPostings = dictList.index(term)
+        pointerIndex = dictList.index(term)
     else:
         return postings
 
     fp = open(postingsFile)
-    for i, line in enumerate(fp):
-        if i == lineNumberOfPostings:
-            postings = nltk.word_tokenize(line)
+    fp.seek(int(pointerList[int(pointerIndex)]), 0)
+    postings = nltk.word_tokenize(fp.readline())
+    
     print(term)
     print(postings)
     return postings
@@ -174,6 +173,9 @@ def getPostingsList(term, dictList, freqList, postingsFile):
 
 # Takes in 2 arrays, and merge
 def merge(list1, list2):
+    print("CHECK")
+    print(list1)
+    print(list2)
     resultList = []
     i = j = 0
     if not (list1) :
@@ -185,7 +187,7 @@ def merge(list1, list2):
     jSkipPointer = int(math.sqrt(len(list2)))
 
     while (i < len(list1) and j < len(list2)):
-        if list1[i] == list2[j]:
+        if int(list1[i]) == int(list2[j]):
             resultList.append(list1[i])
             i = i + 1
             j = j + 1
